@@ -7,7 +7,14 @@ router.get('/', function(req, res, next) {
   res.send('post to my url with amount rate and total term, schedule will be given')
 });
 
-router.post('/', function(req,res,next){
+router.post('/term', function(req,res,next){
+  const { amount, rate, totalTerm, amortizeTerm } = req.body
+  var amortObj = amortize({ amount, rate, totalTerm, amortizeTerm })
+
+  res.send(amortObj)
+})
+
+router.post('/schedule', function(req,res,next){
   const { amount, rate, totalTerm } = req.body
   var amortObj = {
     amount,
@@ -20,9 +27,7 @@ router.post('/', function(req,res,next){
     amortObj.amortizeTerm = i
     obj[i] = amortize(amortObj)
   }
-
   res.send(obj)
-
 })
 
 module.exports = router;
