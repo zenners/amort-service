@@ -16,15 +16,11 @@ router.post('/term', function(req,res,next){
 
 router.post('/schedule', function(req,res,next){
   const { amount, rate, totalTerm } = req.body
-  var amortObj = {
-    amount,
-    rate,
-    totalTerm
-  }
+  var amortObj = { amount, rate, totalTerm }
   var obj = {}
 
   for (var i = 1; i <= totalTerm; i++){
-    amortObj.amortizeTerm = i
+    amortObj.amortizeTerm = i // better to use object extend
     obj[i] = amortize(amortObj)
   }
   res.send(obj)
