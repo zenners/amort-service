@@ -26,4 +26,21 @@ router.post('/schedule', function(req,res,next){
   res.send(obj)
 })
 
+router.post('/insertPHPJSON', function(req,res){
+  var params = {values: JSON.stringify(req.body)}
+  console.log('params ', params)
+  var url = 'https://rfc360-test.azurewebsites.net/Service1.svc/process360Test'
+
+  axios.post(url,params,function(error,response,body){
+    if(error){
+        console.log('insert php json error ', error)
+        res.send(error)
+    }
+    else if (!error && response.statusCode == 200){
+      console.log('insert php json ', body.process360TestResult)
+      res.send(body.process360TestResult)
+    }
+  })
+})
+
 module.exports = router;
