@@ -1,0 +1,5 @@
+---
+applications:
+- name: rfc360schedule
+  memory: 256M
+  instances: 2
