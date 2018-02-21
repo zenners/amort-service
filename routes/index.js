@@ -1,5 +1,7 @@
 var express = require('express');
 var amortize = require('amortize');
+var axios = require('axios');
+var request = require('superagent')
 var router = express.Router();
 
 /* GET home page. */
@@ -26,21 +28,71 @@ router.post('/schedule', function(req,res,next){
   res.send(obj)
 })
 
-router.post('/insertPHPJSON', function(req,res){
+router.post('/insertPHPJSONTest', function(req,res){
   var params = {values: JSON.stringify(req.body)}
   console.log('params ', params)
+  var rfcLink = 'http://rfc360-test.mybluemix.net/applications/saveApplicationCopy';
   var url = 'https://rfc360-test.azurewebsites.net/Service1.svc/process360Test'
+  console.log('links ', rfcLink, url)
 
-  axios.post(url,params,function(error,response,body){
-    if(error){
-        console.log('insert php json error ', error)
-        res.send(error)
-    }
-    else if (!error && response.statusCode == 200){
-      console.log('insert php json ', body.process360TestResult)
-      res.send(body.process360TestResult)
-    }
-  })
+  request
+    .post(rfcLink)
+    .send(req.body)
+    .end(function(err, result){
+      if(err){
+        console.log('save copy error ', err);
+        res.send(err)
+      }else{
+        console.log('save copy result ', result.body);
+        res.send(result.body)
+      }
+    })
+
+  request
+    .post(url)
+    .send(params)
+    .end(function(err, result){
+      if(err){
+        console.log('save wcf error ', err);
+        res.send(err)
+      }else{
+        console.log('save wcf result ', result);
+        res.send(result)
+      }
+    })
+})
+
+router.post('/insertPHPJSONProd', function(req,res){
+  var params = {values: JSON.stringify(req.body)}
+  console.log('params ', params)
+  var rfcLink = 'https://rfc360.mybluemix.net/applications/saveApplicationCopy';
+  var url = 'https://api360.fundko.com/Service1.svc/process360Test'
+
+  request
+    .post(rfcLink)
+    .send(req.body)
+    .end(function(err, result){
+      if(err){
+        console.log('save copy error ', err);
+        res.send(err)
+      }else{
+        console.log('save copy result ', result.body);
+        res.send(result.body)
+      }
+    })
+
+  request
+    .post(url)
+    .send(params)
+    .end(function(err, result){
+      if(err){
+        console.log('save wcf error ', err);
+        res.send(err)
+      }else{
+        console.log('save wcf result ', result);
+        res.send(result)
+      }
+    })
 })
 
 module.exports = router;
