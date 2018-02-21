@@ -1,5 +1,7 @@
 var express = require('express');
 var amortize = require('amortize');
+var axios = require('axios');
+var request = require('superagent')
 var router = express.Router();
 
 /* GET home page. */
@@ -24,6 +26,73 @@ router.post('/schedule', function(req,res,next){
     obj[i] = amortize(amortObj)
   }
   res.send(obj)
+})
+
+router.post('/insertPHPJSONTest', function(req,res){
+  var params = {values: JSON.stringify(req.body)}
+  console.log('params ', params)
+  var rfcLink = 'http://rfc360-test.mybluemix.net/applications/saveApplicationCopy';
+  var url = 'https://rfc360-test.azurewebsites.net/Service1.svc/process360Test'
+  console.log('links ', rfcLink, url)
+
+  request
+    .post(rfcLink)
+    .send(req.body)
+    .end(function(err, result){
+      if(err){
+        console.log('save copy error ', err);
+        res.send(err)
+      }else{
+        console.log('save copy result ', result.body);
+        res.send(result.body)
+      }
+    })
+
+  request
+    .post(url)
+    .send(params)
+    .end(function(err, result){
+      if(err){
+        console.log('save wcf error ', err);
+        res.send(err)
+      }else{
+        console.log('save wcf result ', result);
+        res.send(result)
+      }
+    })
+})
+
+router.post('/insertPHPJSONProd', function(req,res){
+  var params = {values: JSON.stringify(req.body)}
+  console.log('params ', params)
+  var rfcLink = 'https://rfc360.mybluemix.net/applications/saveApplicationCopy';
+  var url = 'https://api360.fundko.com/Service1.svc/process360Test'
+
+  request
+    .post(rfcLink)
+    .send(req.body)
+    .end(function(err, result){
+      if(err){
+        console.log('save copy error ', err);
+        res.send(err)
+      }else{
+        console.log('save copy result ', result.body);
+        res.send(result.body)
+      }
+    })
+
+  request
+    .post(url)
+    .send(params)
+    .end(function(err, result){
+      if(err){
+        console.log('save wcf error ', err);
+        res.send(err)
+      }else{
+        console.log('save wcf result ', result);
+        res.send(result)
+      }
+    })
 })
 
 module.exports = router;
