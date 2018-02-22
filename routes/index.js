@@ -2,7 +2,10 @@ var express = require('express');
 var amortize = require('amortize');
 var axios = require('axios');
 var request = require('superagent')
+var async = require('async')
 var router = express.Router();
+
+var wcf = require('../api/proxy');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -28,71 +31,82 @@ router.post('/schedule', function(req,res,next){
   res.send(obj)
 })
 
-router.post('/insertPHPJSONTest', function(req,res){
+router.post('/insertPHPJSONTest', function(req,res, next){
+  var url = 'https://rfc360-test.zennerslab.com/Service1.svc/process360Test'
   var params = {values: JSON.stringify(req.body)}
-  console.log('params ', params)
-  var rfcLink = 'http://rfc360-test.mybluemix.net/applications/saveApplicationCopy';
-  var url = 'https://rfc360-test.azurewebsites.net/Service1.svc/process360Test'
-  console.log('links ', rfcLink, url)
-
-  request
-    .post(rfcLink)
-    .send(req.body)
-    .end(function(err, result){
-      if(err){
-        console.log('save copy error ', err);
-        res.send(err)
-      }else{
-        console.log('save copy result ', result.body);
-        res.send(result.body)
-      }
-    })
-
+  console.log('saving to wcf...')
   request
     .post(url)
     .send(params)
     .end(function(err, result){
       if(err){
-        console.log('save wcf error ', err);
-        res.send(err)
+        console.log('error ', error)
+        return next(error)
       }else{
-        console.log('save wcf result ', result);
-        res.send(result)
+        console.log('result ', result.body)
+        res.send(result.body.process360TestResult)
       }
     })
 })
 
+router.post('/insertPHPJSONTestCopy', function(req,res){
+  var params = {values: JSON.stringify(req.body)}
+  var rfcLink = 'https://rfc360-test.mybluemix.net/applications/saveApplicationCopy';
+  var url = 'https://rfc360-test.zennerslab.com/Service1.svc/process360Test'
+  console.log(`links used: front ${rfcLink} and back ${url}`);
+
+  function saveAppCopy(){
+    console.log('saving application copy...');
+    return axios.post(rfcLink, req.body)
+  }
+
+  function saveAppToWCF(){
+    console.log('saving application to wcf...');
+    return axios.post(url, params)
+  }
+
+  axios.all([saveAppCopy(), saveAppToWCF()])
+  .then(axios.spread(function(appResult, wcfResult){
+    var response = {app: appResult.data, wcf: wcfResult.data}
+    console.log('done axios all response ', response);
+
+    res.json(response)
+  }))
+  .catch(function(appErr, wcfErr){
+    var error = { appErr: appErr, wcfErr: wcfErr }
+    console.log('axios all error ', error)
+    res.json(error)
+  })
+})
+
 router.post('/insertPHPJSONProd', function(req,res){
   var params = {values: JSON.stringify(req.body)}
-  console.log('params ', params)
   var rfcLink = 'https://rfc360.mybluemix.net/applications/saveApplicationCopy';
-  var url = 'https://api360.fundko.com/Service1.svc/process360Test'
+  var url = 'https://api360.zennerslab.com/Service1.svc/process360Test'
+  console.log(`links used: front ${rfcLink} and back ${url}`);
 
-  request
-    .post(rfcLink)
-    .send(req.body)
-    .end(function(err, result){
-      if(err){
-        console.log('save copy error ', err);
-        res.send(err)
-      }else{
-        console.log('save copy result ', result.body);
-        res.send(result.body)
-      }
-    })
+  function saveAppCopy(){
+    console.log('saving application copy...');
+    return axios.post(rfcLink, req.body)
+  }
 
-  request
-    .post(url)
-    .send(params)
-    .end(function(err, result){
-      if(err){
-        console.log('save wcf error ', err);
-        res.send(err)
-      }else{
-        console.log('save wcf result ', result);
-        res.send(result)
-      }
-    })
+  function saveAppToWCF(){
+    console.log('saving application to wcf...');
+    return axios.post(url, params)
+  }
+
+  axios.all([saveAppCopy(), saveAppToWCF()])
+  .then(axios.spread(function(appResult, wcfResult){
+    var response = {app: appResult.data, wcf: wcfResult.data}
+    console.log('done axios all response ', response);
+
+    res.json(response)
+  }))
+  .catch(function(appErr, wcfErr){
+    var error = { appErr: appErr, wcfErr: wcfErr }
+    console.log('axios all error ', error)
+    res.json(error)
+  })
 })
 
 module.exports = router;
