@@ -33,15 +33,17 @@ router.post('/schedule', function(req,res,next){
 
 router.post('/insertPHPJSONTest', function(req,res, next){
   var url = 'https://rfc360-test.zennerslab.com/Service1.svc/process360Test'
+  // var url = 'https://rfc360-test.zennerslab.com/Service1.svc/searchIdentification'
   var params = {values: JSON.stringify(req.body)}
   console.log('saving to wcf...')
+  // console.log('checking identification...')
   request
     .post(url)
     .send(params)
     .end(function(err, result){
       if(err){
-        console.log('error ', error)
-        return next(error)
+        console.log('error ', err)
+        return next(err)
       }else{
         console.log('result ', result.body)
         res.send(result.body.process360TestResult)
@@ -79,7 +81,25 @@ router.post('/insertPHPJSONTestCopy', function(req,res){
   })
 })
 
-router.post('/insertPHPJSONProd', function(req,res){
+router.post('/insertPHPJSONProd', function(req,res, next){
+  var url = 'https://api360.zennerslab.com/Service1.svc/process360Test'
+  var params = {values: JSON.stringify(req.body)}
+  console.log('saving to wcf...')
+  request
+    .post(url)
+    .send(params)
+    .end(function(err, result){
+      if(err){
+        console.log('error ', err)
+        return next(err)
+      }else{
+        console.log('result ', result.body)
+        res.send(result.body.process360TestResult)
+      }
+    })
+})
+
+router.post('/insertPHPJSONProdCopy', function(req,res){
   var params = {values: JSON.stringify(req.body)}
   var rfcLink = 'https://rfc360.mybluemix.net/applications/saveApplicationCopy';
   var url = 'https://api360.zennerslab.com/Service1.svc/process360Test'
