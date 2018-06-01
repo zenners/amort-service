@@ -32,11 +32,11 @@ router.post('/schedule', function(req,res,next){
 })
 
 router.post('/insertPHPJSONTest', function(req,res, next){
-  var url = 'https://rfc360-test.zennerslab.com/Service1.svc/process360Test'
-  // var url = 'https://rfc360-test.zennerslab.com/Service1.svc/searchIdentification'
+  // var url = 'https://rfc360-test.zennerslab.com/Service1.svc/process360Test'
+  var url = 'https://rfc360-test.zennerslab.com/Service1.svc/searchIdentification'
   var params = {values: JSON.stringify(req.body)}
-  console.log('saving to wcf...')
-  // console.log('checking identification...')
+  // console.log('saving to wcf...')
+  console.log('checking identification...')
   request
     .post(url)
     .send(params)

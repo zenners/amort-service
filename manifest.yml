@@ -1,6 +1,6 @@
 ---
 applications:
-- name: rfc360-service-test
+- name: rfc360-service1-test
   memory: 128M
   buildpack: https://github.com/cloudfoundry/nodejs-buildpack
   command: node ./bin/www
