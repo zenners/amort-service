@@ -4,7 +4,7 @@ var axios = require('axios');
 var request = require('superagent')
 var async = require('async')
 var router = express.Router();
-
+var waterfall = require('async/waterfall');
 var wcf = require('../api/proxy');
 
 /* GET home page. */
@@ -52,6 +52,40 @@ router.post('/insertPHPJSONTest', function(req,res, next){
 })
 
 router.post('/insertPHPJSONTestCopy', function(req,res){
+  var params = {values: JSON.stringify(req.body)}
+  var rfcLink = 'https://rfc360-test.mybluemix.net/applications/saveApplicationCopy';
+  var url = 'https://rfc360-test.zennerslab.com/Service1.svc/process360Test'
+  // var url = 'http://localhost:15021/Service1.svc/process360Test'
+  console.log(`links used: front ${rfcLink} and back ${url}`);
+
+  function saveAppToWCF(data, callback){
+      console.log('saving application to wcf...');
+
+      axios.post(url, params)
+      .then(res => callback(null, {app: data, wcf: res.data }))
+      .catch(err => callback(err))
+  }
+
+
+  function saveAppCopy(callback){
+    axios.post(rfcLink, req.body)
+    .then(res => callback(null, res.data))
+    .catch(err => callback(err))
+
+  }
+
+  async.waterfall([
+          saveAppCopy,
+          saveAppToWCF,
+
+      ], function (error, success) {
+          var response = {data: success}
+          if (error) { console.log('Something is wrong!', error) }
+          res.json(response)
+      })
+})
+
+router.post('/insertPHPJSONTestCopy1', function(req,res){
   var params = {values: JSON.stringify(req.body)}
   var rfcLink = 'https://rfc360-test.mybluemix.net/applications/saveApplicationCopy';
   var url = 'https://rfc360-test.zennerslab.com/Service1.svc/process360Test'
